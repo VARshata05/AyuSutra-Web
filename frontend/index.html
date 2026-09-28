@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#2c6e49" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192x192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AyuSutra - Lifespan, Guided</title>
+  <meta name="description" content="AyuSutra - Find hospitals near you, check symptoms with AI scoring, locate blood banks, and manage your complete medical history."/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="css/style.css"/>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!--
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   API KEYS - Replace the values below before running
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Google Maps : https://console.cloud.google.com/
+     Enable APIs:
+       - Maps JavaScript API
+       - Places API (New)
+       - Geocoding API
+
+   Anthropic   : https://console.anthropic.com/
+     Used for  : Chatbot, Report Summarizer, Health Q&A
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  -->
+  <script>
+    window.GOOGLE_MAPS_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';  // â† replace
+    window.API_BASE = window.location.origin + '/api';        // Backend API base URL
+  </script>
+</head>
+
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="auth-bg"></div>
+  <div class="auth-orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">Ayu<span>Sutra</span></div>
+      <div class="auth-logo-tag" data-i18n="heroTitle">Lifespan, Guided</div>
+    </div>
+    
+    <div class="auth-lang-selector" style="text-align: right; margin-bottom: 15px;">
+      <select id="langSelectAuth" onchange="setLanguage(this.value)" style="padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink);">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="kn">Kannada</option>
+        <option value="mr">Marathi</option>
+        <option value="gu">Gujarati</option>
+        <option value="ta">Tamil</option>
+        <option value="te">Telugu</option>
+        <option value="ml">Malayalam</option>
+        <option value="bn">Bengali</option>
+      </select>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuth('signup')">Create Account</button>
+    </div>
+    <div id="loginForm">
+      <div class="auth-field"><label data-i18n="authEmail">Email Address</label><input type="email" id="loginEmail" data-i18n="authEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field">
+        <label style="display:flex; justify-content:space-between;">
+          <span data-i18n="authPass">Password</span>
+          <a onclick="switchAuth('forgot')" style="color:var(--saffron-mid); cursor:pointer; text-decoration:underline; font-size: 0.8rem;">Forgot?</a>
+        </label>
+        <input type="password" id="loginPass" data-i18n="authPass" placeholder="********"/>
+      </div>
+      <button class="auth-btn" onclick="doLogin()" data-i18n="authSignIn">Sign In -></button>
+      <div class="auth-divider" data-i18n="authOr">- or -</div>
+      <div class="auth-alt"><span data-i18n="authNoAccount">No account?</span> <a onclick="switchAuth('signup')" data-i18n="authCreateOne">Create one free</a></div>
+    </div>
+    
+    <div id="signupForm" style="display:none">
+      <div class="auth-field"><label data-i18n="authName">Full Name</label><input type="text" id="signupName" data-i18n="authName" placeholder="Your full name"/></div>
+      <div class="auth-field"><label data-i18n="authEmail">Email Address</label><input type="email" id="signupEmail" data-i18n="authEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label data-i18n="authBlood">Blood Group</label>
+        <select id="signupBlood"><option value="" data-i18n="authSelectBlood">Select blood group</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+      </div>
+      <div class="auth-field"><label data-i18n="authPass">Password</label><input type="password" id="signupPass" data-i18n="authPass" placeholder="Min. 6 characters"/></div>
+      <button class="auth-btn" onclick="doSignup()" data-i18n="authCreateAccountBtn">Create Account -></button>
+      <div class="auth-divider" data-i18n="authOr">- or -</div>
+      <div class="auth-alt"><span data-i18n="authHaveAccount">Already have an account?</span> <a onclick="switchAuth('login')" data-i18n="authSignInText">Sign In</a></div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="forgotForm" style="display:none">
+      <p style="color:var(--ink2); font-size:0.85rem; margin-bottom:15px;">Enter your email and we'll generate a reset code.</p>
+      <div class="auth-field"><label>Email Address</label><input type="email" id="forgotEmail" placeholder="you@email.com"/></div>
+      <button class="auth-btn" onclick="doForgotPassword()">Get Reset Code</button>
+      <div class="auth-divider">- or -</div>
+      <div class="auth-alt"><a onclick="switchAuth('login')">Back to Sign In</a></div>
+    </div>
+
+    <!-- RESET PASSWORD -->
+    <div id="resetForm" style="display:none">
+      <p style="color:var(--ink2); font-size:0.85rem; margin-bottom:15px;">Enter the code you received and your new password.</p>
+      <div class="auth-field"><label>Email Address</label><input type="email" id="resetEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Reset Code</label><input type="text" id="resetCode" placeholder="6-digit code"/></div>
+      <div class="auth-field"><label>New Password</label><input type="password" id="resetPass" placeholder="New Password"/></div>
+      <button class="auth-btn" onclick="doResetPassword()">Reset Password</button>
+      <div class="auth-divider">- or -</div>
+      <div class="auth-alt"><a onclick="switchAuth('login')">Cancel</a></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<nav>
+  <div style="display:flex; align-items:center; gap: 15px;">
+    <div class="logo" onclick="show('home')"><div class="logo-dot"></div>Ayu<span>Sutra</span></div>
+    <div class="nav-history-controls" style="display:flex; gap:5px;">
+      <button class="icon-btn" onclick="history.back()" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:4px 8px; cursor:pointer; color:var(--ink);" title="Go Back">◀</button>
+      <button class="icon-btn" onclick="history.forward()" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:4px 8px; cursor:pointer; color:var(--ink);" title="Go Forward">▶</button>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a onclick="show('home')" id="nav-home" class="active" data-i18n="navHome">Home</a>
+    <a onclick="show('symptoms')" id="nav-symptoms" data-i18n="navSymptoms">Symptoms</a>
+    <a onclick="show('hospitals')" id="nav-hospitals" data-i18n="navHospitals">Hospitals</a>
+    <a onclick="show('diagnostics')" id="nav-diagnostics" data-i18n="diagTitle">Diagnostics</a>
+    <a onclick="show('blood')" id="nav-blood" data-i18n="bloodTitle">Blood Bank</a>
+  </div>
+  <div style="display:flex; align-items:center; gap: 15px;">
+    <button id="themeToggle" onclick="toggleTheme()" class="icon-btn" style="background:none; border:none; font-size: 1.2rem; cursor: pointer; color: var(--ink);">🌙</button>
+    <div class="lang-selector">
+      <select id="langSelectNav" onchange="setLanguage(this.value)" class="lang-dropdown">
+        <option value="en">EN</option>
+        <option value="hi">HI</option>
+        <option value="kn">KN</option>
+        <option value="mr">MR</option>
+        <option value="gu">GU</option>
+        <option value="ta">TA</option>
+        <option value="te">TE</option>
+        <option value="ml">ML</option>
+        <option value="bn">BN</option>
+      </select>
+    </div>
+    <div class="profile-dropdown-wrapper">
+      <div class="nav-profile" id="profileToggle" onclick="toggleProfileDropdown()">
+        <div class="user-avatar" id="navAvatar">U</div>
+        <span id="navName">User</span>
+        <span class="caret">▼</span>
+      </div>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="dd-header">
+          <div class="dd-name" id="ddName">User</div>
+          <div class="dd-email" id="ddEmail">user@email.com</div>
+        </div>
+        <button class="dd-item" onclick="show('dashboard'); closeProfileDropdown();">
+          <span class="dd-icon">👤</span> Dashboard
+        </button>
+        <button class="dd-item" onclick="show('history'); closeProfileDropdown();">
+          <span class="dd-icon">📋</span> My Records
+        </button>
+        <button class="dd-item" onclick="show('chatbot'); closeProfileDropdown();">
+          <span class="dd-icon">💬</span> Chat
+        </button>
+        <button class="dd-item" onclick="toggleTheme(); closeProfileDropdown();">
+          <span class="dd-icon">🎨</span> Toggle Theme
+        </button>
+        <div class="dd-divider"></div>
+        <button class="dd-item danger" onclick="doLogout()">
+          <span class="dd-icon">🚪</span> Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow" data-i18n="heroEyebrow">👋 Ayu (आयुष) - Lifespan in Sanskrit</div>
+      <h1 data-i18n="heroHeadline">Healthcare,<br/><em>closer</em> than<br/>you think.</h1>
+      <p class="hero-sub" data-i18n="heroSub">AyuSutra - the thread of your lifespan. Find hospitals near you, check symptoms with AI scoring, and manage your complete health journey.</p>
+      <button class="loc-pill" onclick="getLocation(true)" id="locPill">
+        <span class="loc-pulse"></span>
+        <span id="heroLocText" data-i18n="heroLocBtn">📍 Detect My Location</span>
+      </button>
+      <div class="hero-ctas">
+        <button class="btn-fire" onclick="show('symptoms')" data-i18n="symAnalyze">Check Symptoms -></button>
+        <button class="btn-outline" onclick="show('hospitals')" data-i18n="diagNearMe">Find Hospitals Near Me</button>
+      </div>
+    </div>
+    <div class="quick-tiles">
+      <div class="qtile" onclick="show('symptoms')"><div class="qtile-icon">🩺</div><h3 data-i18n="symTitle">Symptom Checker</h3><p data-i18n="symTileSub">AI scoring + specialist mapping</p></div>
+      <div class="qtile" onclick="show('hospitals')"><div class="qtile-icon">🏥</div><h3 data-i18n="navHospitals">Hospitals</h3><p data-i18n="hospTileSub">Find nearby clinics and centers</p></div>
+      <div class="qtile" onclick="show('chat')"><div class="qtile-icon">🤖</div><h3 data-i18n="chatTitle">Health Assistant</h3><p data-i18n="chatTileSub">AI report analysis & guidance</p></div>
+      <div class="qtile" onclick="show('dashboard')"><div class="qtile-icon">👤</div><h3 data-i18n="navDashboard">Dashboard</h3><p data-i18n="dashHealthProfile">Manage your health profile</p></div>
+      <div class="qtile" onclick="show('history')"><div class="qtile-icon">📋</div><h3 data-i18n="navHistory">Records</h3><p data-i18n="histTileSub">Securely store your medical files</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOSPITALS PAGE -->
+<div class="page" id="page-hospitals">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="hospTitle">Hospitals Near You</h2><p data-i18n="hospSubtitle">Live results via Google Maps Places API + Karnataka government database</p></div></div>
+
+    <div class="loc-banner" id="hospitalLocBanner">
+      <div class="loc-banner-l"><div class="loc-ico">📍</div>
+        <div><h3 id="locBannerTitle" data-i18n="hospLocTitle">Enable Location for Best Results</h3><p id="locBannerSub" data-i18n="hospLocSub">Share your location to find hospitals near you</p></div>
+      </div>
+      <button class="btn-loc" onclick="getLocation(false)" id="locBannerBtn">📍 Use My Location</button>
+    </div>
+    <div class="search-wrap">
+      <input id="hospSearch" data-i18n="hospSearch" placeholder="Search hospital name or speciality…" oninput="debounceHospSearch()"/>
+      <select id="hospSpecFilter" onchange="renderHospitals()">
+        <option value="" data-i18n="hospAllSpecs">All Specialities</option>
+        <option>CARDIOLOGY</option><option>NEUROSURGERY</option><option>ORTHOPAEDICS</option>
+        <option>OPHTHALMOLOGY</option><option>GENERAL SURGERY</option><option>OBSTETRICS AND GYNAECOLOGY</option>
+        <option>PAEDIATRICS</option><option>UROLOGY</option><option>GENERAL MEDICINE</option>
+        <option>ENT</option><option>BURNS</option><option>POLYTRAUMA</option><option>ONCOLOGY</option>
+      </select>
+      <select id="hospSchemeFilter" onchange="renderHospitals()">
+        <option value="" data-i18n="hospAllSchemes">All Schemes</option>
+        <option>Ayushman Bharat</option><option>Jyothi Sanjeevini</option><option>Organ Transplantion</option>
+      </select>
+    </div>
+    <div id="hospMap" style="display: none; height: 400px; border-radius: 15px; margin-bottom: 20px; border: 2px solid var(--border);"></div>
+    <div class="dist-bar" id="districtBar"></div>
+    <div class="result-bar">
+      <span class="result-count" id="hospCount"></span>
+      <span id="dataSourceBadge"></span>
+    </div>
+    <div class="cards-grid" id="hospCards"></div>
+    <div style="text-align:center;margin-top:18px;" id="loadMoreWrap" style="display:none">
+      <button class="btn-outline" onclick="loadMoreHospitals()">Load More Hospitals</button>
+    </div>
+  </div>
+</div>
+
+<!-- SYMPTOMS PAGE -->
+<div class="page" id="page-symptoms">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="symTitle">Symptom Checker</h2><p>Scored analysis -> conditions -> specialist guide -> nearest hospitals</p></div></div>
+    <div class="symptom-panel">
+      <div style="font-size:.84rem;font-weight:700;margin-bottom:7px;" data-i18n="symYourSymptoms">Your Symptoms</div>
+      <div class="tag-wrap" id="tagWrap" onclick="document.getElementById('syminput').focus()">
+        <input id="syminput" data-i18n="symPlaceholder" placeholder="Type a symptom, press Enter…" onkeydown="symKey(event)" oninput="showSymSuggestions(this.value)"/>
+      </div>
+      <div id="symAutoComplete" style="display:none;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;margin-top:4px;overflow:hidden;box-shadow:var(--shadow-lg);"></div>
+      <div class="sugg-row">
+        <span style="font-size:.7rem;color:var(--ink3);align-self:center;" data-i18n="symCommon">Common:</span>
+        <span class="sugg" onclick="addSym('Fever')">Fever</span>
+        <span class="sugg" onclick="addSym('Headache')">Headache</span>
+        <span class="sugg" onclick="addSym('Chest Pain')">Chest Pain</span>
+        <span class="sugg" onclick="addSym('Cough')">Cough</span>
+        <span class="sugg" onclick="addSym('Stomach Pain')">Stomach Pain</span>
+        <span class="sugg" onclick="addSym('Joint Pain')">Joint Pain</span>
+        <span class="sugg" onclick="addSym('Back Pain')">Back Pain</span>
+        <span class="sugg" onclick="addSym('Fatigue')">Fatigue</span>
+        <span class="sugg" onclick="addSym('Eye Problem')">Eye Problem</span>
+        <span class="sugg" onclick="addSym('Skin Rash')">Skin Rash</span>
+        <span class="sugg" onclick="addSym('Breathlessness')">Breathlessness</span>
+      </div>
+
+      <!-- SCORING FACTORS -->
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:.8rem;font-weight:700;margin-bottom:12px;color:var(--ink2);" data-i18n="symSeverityFactors">📊 Symptom Severity Factors <span style="font-size:.7rem;font-weight:400;">(adjust to get accurate score)</span></div>
+        <div class="score-grid">
+          <div class="score-item">
+            <label>Duration: <span class="score-val" id="durVal">1–3 days</span></label>
+            <input type="range" id="dur" min="1" max="5" value="2" oninput="updateScoreLabel('dur','durVal',['<1 day','1–3 days','4–7 days','1–2 weeks','>2 weeks'])"/>
+          </div>
+          <div class="score-item">
+            <label>Pain Level: <span class="score-val" id="painVal">Moderate</span></label>
+            <input type="range" id="pain" min="1" max="5" value="2" oninput="updateScoreLabel('pain','painVal',['Minimal','Mild','Moderate','Severe','Unbearable'])"/>
+          </div>
+          <div class="score-item">
+            <label>Frequency: <span class="score-val" id="freqVal">Occasional</span></label>
+            <input type="range" id="freq" min="1" max="5" value="2" oninput="updateScoreLabel('freq','freqVal',['Rare','Occasional','Daily','Very frequent','Constant'])"/>
+          </div>
+          <div class="score-item">
+            <label>Impact on daily life: <span class="score-val" id="impactVal">Mild</span></label>
+            <input type="range" id="impact" min="1" max="5" value="2" oninput="updateScoreLabel('impact','impactVal',['None','Mild','Moderate','Significant','Cannot function'])"/>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-fire" onclick="analyzeSymptoms()" data-i18n="symAnalyze">Analyze Symptoms -></button>
+        <button class="btn-outline" onclick="clearSymptoms()" data-i18n="symClear">Clear</button>
+      </div>
+    </div>
+
+    <div class="sym-result" id="symResult">
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:24px;margin-top:4px;">
+        <span class="sev-pill" id="sevPill"></span>
+        <div class="score-breakdown">
+          <h4 data-i18n="symScoreBreakdown">Severity Score Breakdown</h4>
+          <div class="score-bar-row"><span class="score-bar-label">Duration</span><div class="score-bar-track"><div class="score-bar-fill" id="sb-dur"></div></div><span class="score-bar-val" id="sv-dur"></span></div>
+          <div class="score-bar-row"><span class="score-bar-label">Pain Level</span><div class="score-bar-track"><div class="score-bar-fill" id="sb-pain"></div></div><span class="score-bar-val" id="sv-pain"></span></div>
+          <div class="score-bar-row"><span class="score-bar-label">Frequency</span><div class="score-bar-track"><div class="score-bar-fill" id="sb-freq"></div></div><span class="score-bar-val" id="sv-freq"></span></div>
+          <div class="score-bar-row"><span class="score-bar-label">Daily Impact</span><div class="score-bar-track"><div class="score-bar-fill" id="sb-impact"></div></div><span class="score-bar-val" id="sv-impact"></span></div>
+          <div class="total-score"><div><div class="total-score-num" id="totalScoreNum">0</div><div class="total-score-label">/ 100 severity score</div></div><div id="scoreReason" style="font-size:.78rem;color:var(--ink2);max-width:220px;text-align:right;"></div></div>
+        </div>
+        <div class="result-block"><h4>Possible Conditions</h4><div class="r-chips" id="rConditions"></div></div>
+        <div class="result-block">
+          <h4 data-i18n="symDoctorGuide">Doctor Specialization Guide</h4>
+          <div class="spec-map-card"><div class="spec-map-title">🩺 Which doctor should you see?</div><div id="specMapList"></div></div>
+        </div>
+        <div class="result-block"><h4>Nearest Hospitals for Your Condition</h4><div class="cards-grid" id="symHospitals"></div></div>
+        <div class="disclaimer" data-i18n="disclaimer" style="color:var(--red); font-weight: 700; border: 2px solid var(--red); padding: 15px; background: rgba(255,0,0,0.05);">MEDICAL DISCLAIMER: This information is for educational purposes only and does not constitute medical advice, diagnosis, or treatment. Always consult a doctor.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIAGNOSTICS PAGE -->
+<div class="page" id="page-diagnostics">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="diagTitle">Diagnostic Centres</h2><p>Nearest labs and imaging centres - via Google Maps or our database</p></div></div>
+
+    <div class="search-wrap">
+      <input id="diagSearch" data-i18n="diagSearch" placeholder="Search by test type (e.g. MRI, CBC, X-Ray, Blood Test)…" oninput="debounce(renderDiagnostics,500)()"/>
+      <button class="btn-search" onclick="fetchNearbyDiagnostics()">📍 Near Me</button>
+    </div>
+    <div class="result-bar"><span class="result-count" id="diagCount"></span><span id="diagSourceBadge"></span></div>
+    <div id="diagMap" style="height: 400px; border-radius: 15px; margin-bottom: 20px; border: 2px solid var(--border);"></div>
+    <div class="cards-grid" id="diagCards"></div>
+  </div>
+</div>
+
+<!-- BLOOD BANK PAGE -->
+<div class="page" id="page-blood">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="bloodTitle">Blood Bank Locator</h2><p>Find blood banks near you - always call to confirm availability</p></div></div>
+    <div class="disclaimer" style="margin-bottom:18px;" data-i18n="bloodWarning">ℹ️ Blood unit counts change hourly. We show nearby blood banks - <strong>always call ahead to confirm availability</strong> before visiting.</div>
+    <div class="bg-grid">
+      <div class="bg-btn" onclick="selBlood(this,'A+')">A+</div><div class="bg-btn" onclick="selBlood(this,'A-')">A-</div>
+      <div class="bg-btn" onclick="selBlood(this,'B+')">B+</div><div class="bg-btn" onclick="selBlood(this,'B-')">B-</div>
+      <div class="bg-btn" onclick="selBlood(this,'AB+')">AB+</div><div class="bg-btn" onclick="selBlood(this,'AB-')">AB-</div>
+      <div class="bg-btn" onclick="selBlood(this,'O+')">O+</div><div class="bg-btn" onclick="selBlood(this,'O-')">O-</div>
+    </div>
+    <div id="bloodMap" style="display: none; height: 400px; border-radius: 15px; margin-bottom: 20px; border: 2px solid var(--border);"></div>
+    <div id="bloodResults"></div>
+  </div>
+</div>
+
+<!-- MY RECORDS PAGE -->
+<div class="page" id="page-history">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="histTitle">My Medical Records</h2><p>Upload prescriptions, reports, and visits - AI can summarize them</p></div>
+      <button class="btn-fire" onclick="toggleAddRec()" data-i18n="histAdd">+ Add Record</button>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileUploadInput').click()" ondrop="handleFileDrop(event)" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')">
+      <div class="icon">📎</div>
+      <strong style="font-size:.86rem;" data-i18n="histDrop">Drop PDF or Image here</strong>
+      <p data-i18n="histUploadSub">Or click to upload a prescription / lab report (PDF, JPG, PNG)</p>
+      <input type="file" id="fileUploadInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileUpload(this)"/>
+    </div>
+
+    <div class="add-rec-box" id="addRecBox">
+      <h3 style="margin-bottom:14px;font-size:.98rem;font-weight:700;" data-i18n="histNew">New Medical Record</h3>
+      <div class="form-row">
+        <div class="fg"><label data-i18n="histType">Type</label><select id="rType"><option value="prescription">Prescription</option><option value="report">Lab Report</option><option value="visit">Doctor Visit</option></select></div>
+        <div class="fg"><label data-i18n="histDate">Date</label><input type="date" id="rDate"/></div>
+        <div class="fg"><label data-i18n="histDoctor">Doctor Name</label><input id="rDoctor" data-i18n="histDoctor" placeholder="Dr. Name"/></div>
+        <div class="fg"><label data-i18n="hospTitle">Hospital</label><input id="rHosp" placeholder="Hospital name"/></div>
+      </div>
+      <div class="form-row single"><div class="fg"><label data-i18n="histNotes">Diagnosis / Notes</label><textarea id="rNotes" data-i18n="histNotes" placeholder="Diagnosis, medicines, notes…"></textarea></div></div>
+      <div style="font-size:.75rem;color:var(--ink2);margin-bottom:10px;"><span data-i18n="histAttach">📎 Attachment:</span> <span id="attachName" style="color:var(--saffron)">None</span></div>
+      <div style="display:flex;gap:10px;"><button class="btn-fire" onclick="saveRec()" data-i18n="histSave">Save Record</button><button class="btn-outline" onclick="toggleAddRec()" data-i18n="histCancel">Cancel</button></div>
+    </div>
+
+    <div class="timeline" id="histTimeline"></div>
+  </div>
+</div>
+
+<!-- PATIENT DASHBOARD PAGE -->
+<div class="page" id="page-dashboard">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="dashTitle">Patient Dashboard</h2><p>Manage your health profile and personalized AI settings</p></div></div>
+    
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <h3 data-i18n="dashHealthProfile">Health Profile</h3>
+        <div class="form-grid">
+          <div class="fg"><label data-i18n="authName">Full Name</label><input id="dashName" type="text"/></div>
+          <div class="fg"><label data-i18n="dashAge">Date of Birth</label><input id="dashDOB" type="date"/></div>
+          <div class="fg"><label data-i18n="authBlood">Blood Group</label>
+            <select id="dashBlood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+          </div>
+          <div class="fg"><label data-i18n="dashAllergies">Allergies</label><textarea id="dashAllergies" placeholder="e.g. Peanuts, Penicillin..."></textarea></div>
+          <div class="fg"><label data-i18n="dashMedicalNotes">Medical History/Notes</label><textarea id="dashNotes" placeholder="e.g. Hypertension, Diabetic since 2020..."></textarea></div>
+        </div>
+        <button class="btn-fire" onclick="updateProfile()" data-i18n="dashUpdateBtn">Update Profile -></button>
+      </div>
+      
+      <div class="dash-card stats">
+        <h3 data-i18n="dashStats">Health Statistics</h3>
+        <div class="stat-row"><span data-i18n="dashTotalRec">Total Records:</span> <strong id="statRecords">0</strong></div>
+        <div class="stat-row"><span data-i18n="dashLastSym">Last Symptom Check:</span> <strong id="statLastSym">N/A</strong></div>
+        <div class="stat-row"><span data-i18n="dashAiInsights">AI Insights:</span> <strong data-i18n="dashEnabled">Enabled</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT PAGE -->
+<div class="page" id="page-chatbot">
+  <div class="section">
+    <div class="sec-head"><div><h2 data-i18n="chatTitle">AyuSutra Assistant</h2><p>Ask about symptoms, doctors, hospitals, or upload a report for AI summary</p></div></div>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="cmsg bot" data-i18n="chatWelcome">👋 Namaste! I'm the AyuSutra assistant. I can help with symptoms, reports, and finding hospitals.</div>
+      </div>
+      <div class="chat-bottom">
+        <div class="chat-toolbar">
+          <button class="chat-tool-btn" id="micBtn" title="Voice input (tap to speak)" onclick="toggleVoice()">🎤</button>
+          <button class="chat-tool-btn" title="Upload report/image" onclick="document.getElementById('chatFileInput').click()">📎<input type="file" id="chatFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleChatFile(this)"/></button>
+          <button class="chat-tool-btn" title="Take photo" onclick="openCamera()">📸</button>
+          <span id="voiceStatus" style="font-size:.72rem;color:var(--red);align-self:center;display:none;">🎤 Listening...</span>
+        </div>
+        <div class="file-preview" id="filePreview">
+          <span id="filePreviewName">📎 report.pdf</span>
+          <button onclick="clearChatFile()" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:.85rem;">✕</button>
+        </div>
+                <div class="chat-input-row">
+          <input class="chat-in" id="chatIn" data-i18n="chatPlaceholder" placeholder="Ask a health question, or describe your report…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"/>
+          <button class="chat-send" onclick="sendChat()">➤</button>
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer" style="margin-top:8px;" data-i18n="disclaimer">This assistant provides general health information only - not a substitute for professional medical advice. Never use it for emergencies (call 112).</div>
+  </div>
+</div>
+</div><!-- /app -->
+
+<!-- Camera modal -->
+<div id="cameraModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
+  <video id="cameraVideo" style="width:min(90vw,480px);border-radius:14px;" autoplay playsinline></video>
+  <div style="display:flex;gap:12px;">
+    <button onclick="capturePhoto()" style="padding:11px 22px;border-radius:100px;background:var(--saffron);color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;">📸 Capture</button>
+    <button onclick="closeCamera()" style="padding:11px 22px;border-radius:100px;background:rgba(255,255,255,.15);color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">Cancel</button>
+  </div>
+  <canvas id="cameraCanvas" style="display:none;"></canvas>
+</div>
+
+<script src="/js/i18n.js?v=8"></script>
+<script src="/js/hospitals-data.js"></script>
+<script src="/js/diagnostics-data.js"></script>
+<script src="/js/bloodbanks-data.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/js/app.js?v=8"></script>
+
+<script>
+/*
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+  }
+*/
+</script>
+<!-- Mobile Bottom Navigation -->
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-item active" onclick="show('home')" data-page="home">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">Home</span>
+    </button>
+    <button class="bnav-item" onclick="show('symptoms')" data-page="symptoms">
+      <span class="bnav-icon">🩺</span>
+      <span class="bnav-label">Symptoms</span>
+    </button>
+    <button class="bnav-item" onclick="show('hospitals')" data-page="hospitals">
+      <span class="bnav-icon">🏥</span>
+      <span class="bnav-label">Hospitals</span>
+    </button>
+    <button class="bnav-item" onclick="show('blood')" data-page="blood">
+      <span class="bnav-icon">🩸</span>
+      <span class="bnav-label">Blood</span>
+    </button>
+    <button class="bnav-item" onclick="show('chatbot')" data-page="chatbot">
+      <span class="bnav-icon">💬</span>
+      <span class="bnav-label">Chat</span>
+    </button>
+  </div>
+</div>
+
+<!-- Floating Chat Button -->
+<button class="floating-chat" id="floatingChat" onclick="show('chatbot')" title="Open AI Assistant">
+  💬
+</button>
+
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Dropdown overlay (click outside to close) -->
+<div class="dropdown-overlay" id="dropdownOverlay" onclick="closeProfileDropdown()"></div>
+
+</body>
+</html>
+

@@ -1,0 +1,22 @@
+const BLOOD_BANKS_DB = [
+  { name: 'Yelahanka Lions Blood Bank', rating: 4.9, reviews: 1200, type: 'Blood Bank', address: 'Yelahanka, near NES Bus Stop', phone: '07618799131', status: 'Open 24 hrs', notes: 'Clean and safe experience', lat: 13.1005, lng: 77.5963 },
+  { name: 'Sri Manyatha Voluntary Blood Center', rating: 4.6, reviews: 34, type: 'Blood Donation Center', address: 'Service Rd', phone: '09980239887', status: 'Open 24 hrs', notes: 'Located on 4th floor', lat: 13.0451, lng: 77.6201 },
+  { name: 'Universal Welfare Blood Centre', rating: 5.0, reviews: 52, type: 'Blood Bank', address: 'T Dasarahalli, Tumkur Rd', phone: '09880022860', status: 'Open 24 hrs', notes: 'On-site services', lat: 13.0456, lng: 77.5144 },
+  { name: 'Bangalore Medical Services Trust', rating: 4.2, reviews: 155, type: 'Blood Bank', address: 'New Thippasandra Main Rd', phone: '09900153000', status: 'Open 24 hrs', notes: 'Basic health checks before donation', lat: 12.9734, lng: 77.6510 },
+  { name: 'Amulya Voluntary Blood Centre', rating: 5.0, reviews: 925, type: 'Blood Bank', address: 'Karnataka', phone: '08045086547', status: 'Open 24 hrs', notes: 'On-site services', lat: 13.0112, lng: 77.5855 },
+  { name: 'Nethaji Voluntary Blood Bank', rating: 4.2, reviews: 32, type: 'Blood Bank', address: 'Old Madras Rd', phone: '08310920544', status: 'Open 24 hrs', notes: 'Good experience', lat: 12.9982, lng: 77.6521 },
+  { name: 'Rashtrotthana Blood Centre', rating: 4.5, reviews: 189, type: 'Blood Bank', address: 'Bengaluru', phone: '08026608870', status: 'Open 24 hrs', notes: 'On-site services', lat: 12.9421, lng: 77.5755 },
+  { name: 'Bangalore Blood Bank & Diagnostic Laboratory', rating: 4.2, reviews: 24, type: 'Blood Bank', address: 'Margosa Rd', phone: '08023347714', status: 'Open 24 hrs', notes: 'Good staff', lat: 13.0032, lng: 77.5710 },
+  { name: 'Bangalore Baptist Hospital Blood Bank', rating: 2.3, reviews: 3, type: 'Blood Donation Center', address: 'Bellary Rd', phone: '08022024700', status: 'Not specified', notes: '', lat: 13.0311, lng: 77.5898 },
+  { name: 'Lions Blood Bank', rating: 3.2, reviews: 42, type: 'Blood Bank', address: 'Millers Rd', phone: '08022266807', status: 'Open 24 hrs', notes: 'Donate blood message', lat: 12.9911, lng: 77.5951 },
+  { name: 'Malleshwaram Voluntary Blood Bank', rating: 4.0, reviews: 29, type: 'Blood Bank', address: 'Sampige Rd', phone: '08023364411', status: 'Open 24 hrs', notes: '', lat: 13.0001, lng: 77.5714 },
+  { name: 'Mediscope Blood Bank', rating: 3.9, reviews: 7, type: 'Blood Bank', address: 'Bengaluru', phone: '', status: 'Open 24 hrs', notes: '', lat: 12.9610, lng: 77.5810 },
+  { name: 'Karnataka Red Cross Blood Bank', rating: 4.5, reviews: 11, type: 'Blood Bank', address: 'Kumarakrupa Rd', phone: '08022268435', status: 'Open 24 hrs', notes: 'Friendly staff', lat: 12.9861, lng: 77.5811 },
+  { name: 'Jeevaraksha Voluntary Blood Bank', rating: 4.6, reviews: 43, type: 'Blood Donation Center', address: 'Cunningham Rd', phone: '09900777791', status: 'Open 24 hrs', notes: 'Blood components available', lat: 12.9867, lng: 77.5985 },
+  { name: 'Sankalp Blood Centre', rating: 4.5, reviews: 37, type: 'Blood Bank', address: '7th Cross Rd', phone: '09480044444', status: 'Open 24 hrs', notes: 'Good experience', lat: 12.9712, lng: 77.6010 },
+  { name: 'Karnataka Blood Bank', rating: 4.8, reviews: 10, type: 'Medical Center', address: 'NR Road', phone: '', status: 'Open 24 hrs', notes: '', lat: 12.9615, lng: 77.5855 },
+  { name: 'Millennium Blood Bank', rating: 3.8, reviews: 9, type: 'Blood Bank', address: 'SP Complex', phone: '09845508136', status: 'Open 24 hrs', notes: 'Good service', lat: 12.9511, lng: 77.5912 },
+  { name: 'Sushrutha Voluntary Blood Centre', rating: 4.8, reviews: 28, type: 'Blood Donation Center', address: 'Dr MC Modi Road', phone: '08023230777', status: 'Open 24 hrs', notes: '', lat: 12.9911, lng: 77.5510 },
+  { name: 'Swamy Vivekananda Voluntary Blood Bank', rating: 3.7, reviews: 53, type: 'Blood Bank', address: 'Raja Ram Mohan Roy Rd', phone: '09343773931', status: 'Open 24 hrs', notes: '', lat: 12.9641, lng: 77.5966 },
+  { name: 'S K Voluntary Blood Bank', rating: 4.0, reviews: 16, type: 'Blood Bank', address: 'Magadi Main Rd', phone: '08023103524', status: 'Open 24 hrs', notes: '', lat: 12.9810, lng: 77.5451 }
+];

@@ -1,0 +1,21 @@
+node_modules/
+.env
+.DS_Store
+*.log
+dist/
+build/
+.vscode/
+
+# SQLite databases (if any leftovers)
+*.db
+*.sqlite
+
+# Testing
+coverage/
+
+# OS generated files
+Thumbs.db
+
+# Project specific
+backend/dev.db
+backend/test_*.json

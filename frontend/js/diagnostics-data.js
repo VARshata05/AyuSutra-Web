@@ -1,0 +1,20 @@
+const DIAGNOSTICS_DB = [
+  { name: 'Gharpe Diagnostics', rating: 4.8, reviews: 174, type: 'Diagnostic Centre', address: 'Near Coles Park', phone: '7411714441', status: 'Open 24 hrs', notes: 'Home X-ray services', lat: 12.9922, lng: 77.6081 },
+  { name: 'SLN Diagnostics', rating: 4.9, reviews: 81, type: 'Diagnostic Centre', address: 'Sapthagiri Complex, Bagalur Main Rd', phone: 'Unknown', status: 'Closed', notes: 'Reports ready on time', lat: 13.1251, lng: 77.6366 },
+  { name: 'Apex Diagnostics', rating: 4.0, reviews: 10, type: 'Diagnostic Centre', address: 'Sathanur, Karnataka', phone: '8296422571', status: 'Open 24 hrs', notes: 'On-site services', lat: 13.0805, lng: 77.6251 },
+  { name: 'Sapthagiri Diagnostics', rating: 4.8, reviews: 40, type: 'Diagnostic Centre', address: 'Bangalore', phone: '9535012136', status: 'Closes soon', notes: 'Professional staff', lat: 13.0456, lng: 77.5614 },
+  { name: 'Nisarga Polyclinic & Diagnostic Centre', rating: 5.0, reviews: 2, type: 'Medical Clinic', address: 'Bangalore', phone: '8618043936', status: 'Open 24 hrs', notes: 'General Checkups', lat: 13.0234, lng: 77.5855 },
+  { name: 'SNR Health Care and Diagnostics', rating: 5.0, reviews: 19, type: 'Laboratory', address: 'Near Country Club', phone: '9902233033', status: 'Open 24 hrs', notes: 'Friendly staff', lat: 13.0112, lng: 77.5762 },
+  { name: 'Gene Plus Diagnostics', rating: 4.9, reviews: 679, type: 'Diagnostic Centre', address: 'Bagalur Main Rd', phone: '8123686877', status: 'Closed', notes: 'Affordable pricing', lat: 13.1221, lng: 77.6355 },
+  { name: 'Shree Vishnu Scans & Diagnostics', rating: 4.7, reviews: 106, type: 'Diagnostic Centre', address: 'Kanti Sweets area', phone: 'Unknown', status: 'Closed', notes: 'Scans and imaging', lat: 13.0315, lng: 77.5921 },
+  { name: 'North City Diagnostic Centre', rating: 4.2, reviews: 327, type: 'Diagnostic Centre', address: 'RDL Square, BB Rd', phone: 'Unknown', status: 'Open 24 hrs', notes: 'On-site services', lat: 13.0532, lng: 77.5966 },
+  { name: 'Anand Diagnostic Laboratory', rating: 5.0, reviews: 1, type: 'Diagnostic Centre', address: '1st Main Rd', phone: '18004251974', status: 'Open 24 hrs', notes: 'Reliable reports', lat: 12.9811, lng: 77.5912 },
+  { name: 'Neuberg Anand Reference Lab', rating: 5.0, reviews: 7, type: 'Diagnostic Centre', address: 'Shree Lakshmi area', phone: 'Unknown', status: 'Closed', notes: 'Easy access reports', lat: 12.9644, lng: 77.6010 },
+  { name: 'Apollo 24/7 Lab Tests', rating: 4.0, reviews: 50, type: 'Diagnostic Centre', address: 'BSF Area', phone: '18005001066', status: 'Closes soon', notes: 'Quick processing', lat: 13.0911, lng: 77.5898 },
+  { name: 'Aster Labs – Chokkanahalli', rating: 4.9, reviews: 1700, type: 'Diagnostic Centre', address: 'RCR Building', phone: '08045553333', status: 'Closed', notes: 'Same-day reports', lat: 13.0901, lng: 77.6410 },
+  { name: 'Apollo Diagnostics', rating: 5.0, reviews: 23, type: 'Diagnostic Centre', address: 'Shivapura', phone: 'Unknown', status: 'Closed', notes: 'Home collection', lat: 13.0763, lng: 77.5244 },
+  { name: 'Fame Diagnostics & Healthcare', rating: 4.9, reviews: 2300, type: 'Diagnostic Centre', address: 'Radha Krishna Layout', phone: 'Unknown', status: 'Closed', notes: 'Affordable scans', lat: 13.0521, lng: 77.5810 },
+  { name: 'Prima Diagnostics – Yelahanka', rating: 4.0, reviews: 1800, type: 'Diagnostic Centre', address: '1st A Main Rd', phone: '9513120444', status: 'Closed', notes: 'On-site services', lat: 13.0991, lng: 77.5922 },
+  { name: 'R N D Diagnostics', rating: 5.0, reviews: 1, type: 'Diagnostic Centre', address: 'Hosahalli Main Rd', phone: 'Unknown', status: 'Open 24 hrs', notes: 'General testing', lat: 12.9781, lng: 77.5451 },
+  { name: 'T.M.G Diagnostic Centre', rating: 4.8, reviews: 13, type: 'Laboratory', address: 'Bagalur Main Rd', phone: '8553666133', status: 'Closed', notes: 'Routine checkups', lat: 13.1210, lng: 77.6341 }
+];

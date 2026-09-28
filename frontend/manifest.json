@@ -1,0 +1,22 @@
+{
+  "name": "AyuSutra",
+  "short_name": "AyuSutra",
+  "description": "Healthcare, closer than you think. Find hospitals, check symptoms, and get AI health guidance.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#2c6e49",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
